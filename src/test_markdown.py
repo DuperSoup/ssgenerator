@@ -333,7 +333,171 @@ class TestMarkdown(unittest.TestCase):
             new_nodes
         )
 
-# tests for markdown_to_blocks(markdown)
+    def test_markdown_to_blocks_normal(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_empty(self):
+        md = ""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [],
+        )
+
+    def test_markdown_to_blocks_many_lines_between_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+
+
+
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_1_block(self):
+        md = """
+This is **bolded** paragraph
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph\nThis is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line\n- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_1_line(self):
+        md = """
+
+
+
+This is **bolded** paragraph
+
+
+
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+            ],
+        )
+
+    def test_block_to_block_type_HEADING(self):
+        block = "#### This is a heading."
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.HEADING)
+    
+    def test_block_to_block_type_CODE(self):
+        block = "```This is a code block.```"
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.CODE)
+
+    def test_block_to_block_type_QUOTE(self):
+        block = """>This is a quote.
+>This quote continues.
+>And again.
+"""
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.QUOTE)
+
+    def test_block_to_block_type_UNORDERED_LIST(self):
+        block = """
+- One of the lines.
+- Another line.
+- And one more.
+"""
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.UNORDERED_LIST)
+
+    def test_block_to_block_type_ORDERED_LIST(self):
+        block = """
+1. First item
+2. Second item
+3. Third item
+"""
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.ORDERED_LIST)
+
+    def test_block_to_block_type_SHOULDNT_BE_HEADING(self):
+        block = "####This is not a heading."
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_SHOULDNT_BE_CODE(self):
+        block = "```This is not a code block.``"
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_SHOULDNT_BE_QUOTE(self):
+        block = """
+>This is not a quote.
+-It doesn't continue.
+>No more.
+"""
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_SHOULDNT_BE_UNORDERED_LIST(self):
+        block = """
+- One of the lines.
+A fake!
+- But it goes on.
+"""
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_SHOULDNT_BE_ORDERED_LIST(self):
+        block = """
+1. First item
+3. But it's cooked
+2. It's joever
+"""
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_empty(self):
+        block = ""
+        block_type = block_to_block_type(block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)  
 
 if __name__ == "__main__":
     unittest.main()
