@@ -46,7 +46,7 @@ class LeafNode(HTMLNode):
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
     
 class ParentNode(HTMLNode):
-     # tag and children are not optional
+     # tag and children are required
      # doesn't take a value argument
      # props is optional
      def __init__(self, tag, children, props=None):

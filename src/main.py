@@ -1,9 +1,13 @@
-from textnode import *
-
+from other_functions import *
 
 def main():
-    testnode = TextNode("This is a text node", "bold", "https://www.boot.dev")
-    print(testnode.__repr__())
+
+    source_dir = "./static"
+    destination_dir = "./public"
+
+    copy_files_from_src_to_dst(source_dir, destination_dir)
+
+    generate_page("./content/index.md", "./template.html", "./public/index.html")
 
 
 if __name__ == "__main__":

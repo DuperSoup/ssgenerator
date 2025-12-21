@@ -3,6 +3,7 @@ import unittest
 from extract_markdown import *
 from textnode import *
 from split_nodes import *
+from other_functions import *
 
 class TestMarkdown(unittest.TestCase):
     def test_extract_markdown_images(self):
@@ -498,6 +499,140 @@ A fake!
         block = ""
         block_type = block_to_block_type(block)
         self.assertEqual(block_type, BlockType.PARAGRAPH)  
+
+    def test_markdown_to_html_node_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_markdown_to_html_node_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
+
+    def test_markdown_to_html_node_unordered_list(self):
+        md = """
+- First **bolded** element
+- Second _italic_ element
+- Third `code` element
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ul><li>First <b>bolded</b> element</li><li>Second <i>italic</i> element</li><li>Third <code>code</code> element</li></ul></div>",
+        )
+
+    def test_markdown_to_html_node_ordered_list(self):
+        md = """
+1. First **bolded** element
+2. Second _italic_ element
+3. Third `code` element
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><ol><li>First <b>bolded</b> element</li><li>Second <i>italic</i> element</li><li>Third <code>code</code> element</li></ol></div>",
+        )
+
+    def test_markdown_to_html_node_quote(self):
+        md = """
+> This is a quote with **bold**
+> that spans with _italics_
+> multiple lines of `code`
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><blockquote>This is a quote with <b>bold</b>that spans with <i>italics</i>multiple lines of <code>code</code></blockquote></div>",
+        )
+
+    def test_markdown_to_html_node_headings(self):
+        md = """
+# **bold** heading
+
+first paragraph
+
+## _italics_ heading
+
+second paragraph
+
+### `code` heading
+
+third paragraph
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><h1><b>bold</b> heading</h1><p>first paragraph</p><h2><i>italics</i> heading</h2><p>second paragraph</p><h3><code>code</code> heading</h3><p>third paragraph</p></div>"
+        )
+
+    def test_extract_title_single_line_h1(self):
+        self.assertEqual(extract_title("# Hello"), "Hello")
+
+    def test_extract_title_h1_with_extra_whitespace(self):
+        self.assertEqual(extract_title("   #   Hello World   "), "Hello World")
+
+    def test_extract_title_h1_not_first_line(self):
+        markdown = """
+        Some intro text
+        ## Subtitle
+        # Main Title
+        More content
+        """
+        self.assertEqual(extract_title(markdown), "Main Title")
+
+    def test_ignores_h2_and_lower(self):
+        markdown = """
+        ## Subtitle
+        ### Subsubtitle
+        """
+        with self.assertRaises(ValueError):
+            extract_title(markdown)
+
+    def test_multiple_h1_returns_first(self):
+        markdown = """
+        # First Title
+        # Second Title
+        """
+        self.assertEqual(extract_title(markdown), "First Title")
+
+    def test_no_h1_raises_exception(self):
+        markdown = """
+        Some text
+        ## Subtitle
+        """
+        with self.assertRaises(ValueError):
+            extract_title(markdown)
 
 if __name__ == "__main__":
     unittest.main()

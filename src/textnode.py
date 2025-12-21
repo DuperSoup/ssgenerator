@@ -1,5 +1,6 @@
 from enum import Enum
 from htmlnode import LeafNode
+# from split_nodes import *
 
 class TextType(Enum):
     TEXT = "normal"
@@ -34,10 +35,19 @@ def text_node_to_html_node(text_node):
           case TextType.CODE:
                return LeafNode(tag="code", value=text_node.text)
           case TextType.LINK:
-               return LeafNode(tag="a", value=text_node.url, props={"href"})
+               return LeafNode(tag="a", value=text_node.text, props={"href": text_node.url})
           case TextType.IMAGE:
                return LeafNode(tag="img", value = "", 
                                    props={"src": text_node.url, "alt": text_node.text})
           case _:
                raise Exception("No TextNode type given")
     
+# works for all block types. It takes a string of text and returns a list of HTMLNodes that represent the inline markdown using previously created functions (think TextNode -> HTMLNode).
+# def text_to_children(text):
+#      text_nodes = text_to_textnodes(text)
+#      children_nodes = []
+#      for text_node in text_nodes:
+#           html_node = text_node_to_html_node(text_node)
+#           children_nodes.append(html_node)
+     
+#      return children_nodes

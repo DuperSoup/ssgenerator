@@ -1,5 +1,5 @@
-from textnode import TextNode
-from textnode import TextType
+from extract_markdown import *
+# from textnode import *
 from extract_markdown import *
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -137,25 +137,3 @@ def split_nodes_link(old_nodes):
 
     # print(new_nodes)        
     return new_nodes
-
-def text_to_textnodes(text):
-    base_node = TextNode(text, TextType.TEXT)
-    # print(base_node)
-    # print("\n")
-    after_bold_nodes = split_nodes_delimiter([base_node], "**", TextType.BOLD)
-    # print(after_bold_nodes)
-    # print("\n")
-    after_italics_nodes = split_nodes_delimiter(after_bold_nodes, "_", TextType.ITALIC)
-    # print(after_italics_nodes)
-    # print("\n")
-    after_code_nodes = split_nodes_delimiter(after_italics_nodes, "`", TextType.CODE)
-    # print(after_code_nodes)
-    # print("\n")    
-    after_image_nodes = split_nodes_image(after_code_nodes)
-    # print(after_image_nodes)
-    # print("\n")
-    after_link_nodes = split_nodes_link(after_image_nodes)
-    # print(after_link_nodes)
-    # print("\n")
-
-    return after_link_nodes

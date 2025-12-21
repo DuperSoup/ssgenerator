@@ -1,5 +1,9 @@
 import re
 from enum import Enum
+from htmlnode import *
+# from split_nodes import *
+from textnode import *
+# from other_functions import *
 
 class BlockType(Enum):
     PARAGRAPH = "paragraph"
@@ -84,3 +88,6 @@ def block_to_block_type(block): # a block is a just a string
     
 
     return BlockType.PARAGRAPH
+
+
+        
