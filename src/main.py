@@ -7,7 +7,7 @@ def main():
 
     copy_files_from_src_to_dst(source_dir, destination_dir)
 
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
+    generate_pages_recursive("./content", "./template.html", "./public")
 
 
 if __name__ == "__main__":

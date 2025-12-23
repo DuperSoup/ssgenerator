@@ -2,6 +2,7 @@ from split_nodes import *
 from textnode import *
 import os
 import shutil
+from pathlib import Path
 
 def text_to_textnodes(text):
 
@@ -258,4 +259,19 @@ def generate_page(from_path, template_path, dest_path):
           f.write(full_html)
 
 def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
-     
+    # Crawl every entry in the content directory
+    for entry in os.listdir(dir_path_content):
+        src_path = os.path.join(dir_path_content, entry)
+
+        # If it's a directory, recurse into it
+        if os.path.isdir(src_path):
+            new_dest_dir = os.path.join(dest_dir_path, entry)
+            generate_pages_recursive(src_path, template_path, new_dest_dir)
+
+        # If it's a markdown file, generate the HTML page
+        elif os.path.isfile(src_path) and src_path.endswith(".md"):
+            # Change .md to .html using pathlib
+            html_filename = Path(entry).with_suffix(".html").name
+            dest_path = os.path.join(dest_dir_path, html_filename)
+
+            generate_page(src_path, template_path, dest_path)
