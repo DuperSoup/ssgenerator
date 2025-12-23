@@ -226,9 +226,9 @@ def copy_files_from_src_to_dst(src, dst):
             # Skip non-regular files (e.g., symlinks, sockets, devices)
             pass
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
      # 1. Print status message
-     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+     print(f"Generating page from {from_path} to {dest_path} using {template_path} (basepath={basepath})")
 
      # 2. Read markdown file
      with open(from_path, "r") as f:
@@ -248,7 +248,10 @@ def generate_page(from_path, template_path, dest_path):
     # 6. Replace placeholders in template
      full_html = template_content \
           .replace("{{ Title }}", title) \
-          .replace("{{ Content }}", html_content)
+          .replace("{{ Content }}", html_content) \
+          .replace('href="/', f'href="{basepath}') \
+          .replace('src="/', f'src="{basepath}')
+     
      
      # 7. Write output HTML, creating directories if needed
      dest_dir = os.path.dirname(dest_path)
@@ -258,7 +261,7 @@ def generate_page(from_path, template_path, dest_path):
      with open(dest_path, "w") as f:
           f.write(full_html)
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     # Crawl every entry in the content directory
     for entry in os.listdir(dir_path_content):
         src_path = os.path.join(dir_path_content, entry)
@@ -266,7 +269,7 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
         # If it's a directory, recurse into it
         if os.path.isdir(src_path):
             new_dest_dir = os.path.join(dest_dir_path, entry)
-            generate_pages_recursive(src_path, template_path, new_dest_dir)
+            generate_pages_recursive(src_path, template_path, new_dest_dir, basepath)
 
         # If it's a markdown file, generate the HTML page
         elif os.path.isfile(src_path) and src_path.endswith(".md"):
@@ -274,4 +277,4 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             html_filename = Path(entry).with_suffix(".html").name
             dest_path = os.path.join(dest_dir_path, html_filename)
 
-            generate_page(src_path, template_path, dest_path)
+            generate_page(src_path, template_path, dest_path, basepath)
